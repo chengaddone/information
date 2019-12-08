@@ -11,6 +11,7 @@ from config import config
 
 # 初始化数据库
 db = SQLAlchemy()
+redis_store = None  # type: StrictRedis
 
 
 def setup_log(config_name):
@@ -18,7 +19,7 @@ def setup_log(config_name):
     # 设置日志记录等级
     logging.basicConfig(level=config[config_name].LOG_LEVEL)  # 调试级别
     # 创建日志记录器，指明日志保存的路径、日志文件的大小和保存日志文件个数上限
-    file_log_handler = RotatingFileHandler("logs/log", maxBytes=1024*1024*100, backupCount=10)
+    file_log_handler = RotatingFileHandler("logs/log", maxBytes=1024*1024*10, backupCount=10)
     # 创建日志记录的格式、日志等级、输入日志信息的文件名、行数、日志信息
     formatter = logging.Formatter("%(levelname)s %(filename)s:%(lineno)d %(message)s")
     # 为创建的日志记录器设置记录格式
@@ -37,9 +38,15 @@ def create_app(config_name):
     # 数据库与app绑定
     db.init_app(app)
     # 初始化redis存储对象
+    global redis_store
     redis_store = StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT)
     # 开启当前项目的CSRF保护
     CSRFProtect(app)
     # 设置session
     Session(app)
+
+    # 注册蓝图
+    from info.modules.index import index_blu
+    app.register_blueprint(index_blu)
+
     return app
