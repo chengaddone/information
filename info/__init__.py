@@ -39,9 +39,11 @@ def create_app(config_name):
     db.init_app(app)
     # 初始化redis存储对象
     global redis_store
-    redis_store = StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT)
+    redis_store = StrictRedis(host=config[config_name].REDIS_HOST,
+                              port=config[config_name].REDIS_PORT,
+                              decode_responses=True)
     # 开启当前项目的CSRF保护
-    CSRFProtect(app)
+    # CSRFProtect(app)
     # 设置session
     Session(app)
 
