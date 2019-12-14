@@ -9,6 +9,7 @@ class Config(object):
     SECRET_KEY = "ADJKsad25*-dsof@$5098"
     # 配置mysql数据库
     SQLALCHEMY_DATABASE_URI = "mysql://root:940606@127.0.0.1:3306/information"
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # 配置redis数据库
     REDIS_HOST = '127.0.0.1'

@@ -102,7 +102,7 @@ $(function(){
 
     // TODO 登录表单提交
     $(".login_form_con").submit(function (e) {
-        e.preventDefault()
+        e.preventDefault();
         var mobile = $(".login_form #mobile").val()
         var password = $(".login_form #password").val()
 
@@ -117,7 +117,29 @@ $(function(){
         }
 
         // 发起登录请求
-    })
+        var params = {
+            "mobile": mobile,
+            "password": password
+        };
+
+        $.ajax({
+            url:'/passport/login',
+            type:'post',
+            data:JSON.stringify(params),
+            contentType:'application/json',
+            headers:{'X-CSRFToken':getCookie('csrf_token')},
+            success: function (resp) {
+                if (resp.errno == 0){
+                    //登录成功
+                    location.reload();
+                }else{
+                    //登录失败
+                    $("#login-password-err").html(resp.errmsg);
+                    $("#login-password-err").show();
+                }
+            }
+        });
+    });
 
 
     // TODO 注册按钮点击
@@ -159,9 +181,11 @@ $(function(){
             type: "post",
             contentType: "application/json",
             data: JSON.stringify(params),
+            headers:{'X-CSRFToken':getCookie('csrf_token')},
             success: function (resp) {
                 if (resp.errno == 0){
                     //注册成功
+                    location.reload();
                 }
                 else {
                     //注册失败
@@ -248,6 +272,13 @@ function sendSMSCode() {
         }
     });
 }
+
+// 退出登录
+function logout() {
+	    $.get('/passport/logout', function (resp) {
+            location.reload();
+        })
+    }
 
 // 调用该函数模拟点击左侧按钮
 function fnChangeMenu(n) {

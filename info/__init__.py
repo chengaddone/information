@@ -5,11 +5,14 @@ from flask import Flask
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
+from flask_wtf.csrf import generate_csrf
 from redis import StrictRedis
 
 from config import config
 
 # 初始化数据库
+from info.utils.common import do_index_class
+
 db = SQLAlchemy()
 redis_store = None  # type: StrictRedis
 
@@ -43,7 +46,15 @@ def create_app(config_name):
                               port=config[config_name].REDIS_PORT,
                               decode_responses=True)
     # 开启当前项目的CSRF保护
-    # CSRFProtect(app)
+    CSRFProtect(app)
+    @app.after_request
+    def after_request(response):
+        """每次前端请求之后响应之前生成随机的CSRF值,并放在响应的cookie中，下次请求会将之带回"""
+        csrf_token = generate_csrf()
+        response.set_cookie("csrf_token", csrf_token)
+        return response
+    # 添加模板过滤器，方法是do_index_class，名称是indexClass
+    app.add_template_filter(do_index_class, "indexClass")
     # 设置session
     Session(app)
 

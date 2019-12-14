@@ -111,6 +111,8 @@ def register():
     # 2.校验数据
     if not all([mobile, sms_code, password]):
         return jsonify(errno=RET.PARAMERR, errmsg="参数有误")
+    if not re.match('1[35678]\\d{9}', mobile):
+        return jsonify(errno=RET.PARAMERR, errmsg="手机号格式不正确")
     # 3.取服务器端保存的验证码信息
     try:
         real_sms_code = redis_store.get("SMS_"+mobile)
@@ -143,3 +145,55 @@ def register():
     # 7.返回响应
     return jsonify(errno=RET.OK, errmsg="注册成功")
 
+
+@passport_blue.route("/login", methods=["POST"])
+def login():
+    """
+    登录视图
+    1.获取参数
+    2.校验参数
+    3.校验密码是否正确
+    4.保存用户的登录状态
+    5.返回响应
+    :return: json
+    """
+    # 1.获取参数
+    params_dict = request.json
+    mobile = params_dict.get("mobile")
+    password = params_dict.get("password")
+    # 2.校验参数
+    if not all([mobile, password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="输入不能为空")
+    if not re.match('1[35678]\\d{9}', mobile):
+        return jsonify(errno=RET.PARAMERR, errmsg="手机号格式不正确")
+    # 3.校验密码是否正确
+    try:
+        user = User.query.filter(User.mobile == mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据查询错误")
+    # 判断用户是否存在
+    if not user:
+        return jsonify(errno=RET.NODATA, errmsg="用户不存在")
+    # 校验密码
+    if not user.check_password(password):
+        return jsonify(errno=RET.PWDERR, errmsg="用户名或密码错误")
+    # 4.保存用户登录状态
+    session["user_id"] = user.id
+    session["mobile"] = user.mobile
+    session["nick_name"] = user.nick_name
+    user.last_login = datetime.now()
+    # 5.返回响应
+    return jsonify(errno=RET.OK, errmsg="登录成功")
+
+
+@passport_blue.route("/logout", methods=["GET"])
+def logout():
+    """
+    退出登录
+    :return: json
+    """
+    session.pop("user_id", None)
+    session.pop("mobile", None)
+    session.pop("nick_name", None)
+    return jsonify(errno=RET.OK, errmsg="登录成功")
