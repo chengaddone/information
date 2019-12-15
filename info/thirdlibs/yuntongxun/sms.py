@@ -3,13 +3,13 @@
 from info.thirdlibs.yuntongxun.CCPRestSDK import REST
 
 # 说明：主账号，登陆云通讯网站后，可在"控制台-应用"中看到开发者主账号ACCOUNT SID
-_accountSid = ''
+_accountSid = '8a216da86eb206c4016ef516cc7e29ab'
 
 # 说明：主账号Token，登陆云通讯网站后，可在控制台-应用中看到开发者主账号AUTH TOKEN
-_accountToken = ''
+_accountToken = 'ad7dab921e994ed0a94d81563f197874'
 
 # 请使用管理控制台首页的APPID或自己创建应用的APPID
-_appId = ''
+_appId = '8a216da86eb206c4016ef516ccd829b1'
 
 # 说明：请求地址，生产环境配置成app.cloopen.com
 _serverIP = 'sandboxapp.cloopen.com'
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     #参数2: ['内容', 有效时间单位分钟]
     #参数3: 模板编号1  【云通讯】您使用的是云通讯短信模板，您的验证码是{1}，请于{2}分钟内正确输入
 
-    ccp.send_template_sms('', ['1234', 5], 1)
+    ccp.send_template_sms('15029288738 ', ['1234', 5], 1)
 
     # print(id(CCP()))
     # print(id(CCP()))

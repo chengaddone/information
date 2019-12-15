@@ -1,5 +1,5 @@
 from info import constants
-from info.models import User, News
+from info.models import User, News, Category
 from info.utils.response_code import RET
 from . import index_blue
 from flask import render_template, current_app, session, request, jsonify
@@ -26,13 +26,19 @@ def index():
         news_list = News.query.order_by(News.clicks.desc()).limit(constants.CLICK_RANK_MAX_NEWS)
     except Exception as e:
         current_app.logger.error(e)
-    news_dict_list = []
+    # 新闻分类的查询
+    categories = Category.query.all()
+    category_list =[]
+    for category in categories:
+        category_list.append(category.to_dict())
     # 将模型类转换为dict，准备传给前端
+    news_dict_list = []
     for new in news_list:
         news_dict_list.append(new.to_basic_dict())
     data = {
         "user": user.to_dict() if user else None,
-        "news_dict_list": news_dict_list
+        "news_dict_list": news_dict_list,
+        "category_list": category_list
     }
     return render_template("news/index.html", data=data)
 

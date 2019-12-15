@@ -1,7 +1,7 @@
 var currentCid = 1; // 当前分类 id
 var cur_page = 1; // 当前页
 var total_page = 1;  // 总页数
-var data_querying = true;   // 是否正在向后台获取数据
+var data_querying = false;   // 是否正在向后台获取数据
 
 
 $(function () {
@@ -9,19 +9,20 @@ $(function () {
     updateNewsData();
     // 首页分类切换
     $('.menu li').click(function () {
-        var clickCid = $(this).attr('data-cid')
+        // 取到相应的被点击的li
+        var clickCid = $(this).attr('data-cid');
         $('.menu li').each(function () {
             $(this).removeClass('active')
-        })
-        $(this).addClass('active')
+        });
+        $(this).addClass('active');
 
         if (clickCid != currentCid) {
             // 记录当前分类id
             currentCid = clickCid
 
             // 重置分页参数
-            cur_page = 1
-            total_page = 1
+            cur_page = 1;
+            total_page = 1;
             updateNewsData()
         }
     });
@@ -42,7 +43,15 @@ $(function () {
         var nowScroll = $(document).scrollTop();
 
         if ((canScrollHeight - nowScroll) < 100) {
-            // TODO 判断页数，去更新新闻数据
+            //判断页数，去更新新闻数据
+            if (!data_querying){  //如果当前没有在加载数据，开始加载数据
+                data_querying = true;
+                if (cur_page<total_page){
+                    cur_page += 1;  //下一页
+                    updateNewsData();
+                    data_querying = false;
+                }
+            }
         }
     })
 });
@@ -51,14 +60,17 @@ function updateNewsData() {
     // TODO 更新新闻数据
     var params = {
         "cid": currentCid,
-        "cur_page": cur_page,
+        "page": cur_page,
 
     };
-    $.get("/news_list", params,function (resp) {
+    $.get("/news_list", params, function (resp) {
         if (resp.errno == 0){
             //请求成功
+            total_page = resp.data.totalPage;  //设置总页数
             //清除已有数据
-            $(".list_con").html("");
+            if (cur_page == 1) {
+                $(".list_con").html("");
+            }
             //重新添加请求的数据
             for(var i=0;i<resp.data.newsDictList.length;i++){
                 var news = resp.data.newsDictList[i];
