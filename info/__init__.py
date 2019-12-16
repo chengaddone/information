@@ -11,8 +11,6 @@ from redis import StrictRedis
 from config import config
 
 # 初始化数据库
-from info.utils.common import do_index_class
-
 db = SQLAlchemy()
 redis_store = None  # type: StrictRedis
 
@@ -54,6 +52,7 @@ def create_app(config_name):
         response.set_cookie("csrf_token", csrf_token)
         return response
     # 添加模板过滤器，方法是do_index_class，名称是indexClass
+    from info.utils.common import do_index_class
     app.add_template_filter(do_index_class, "indexClass")
     # 设置session
     Session(app)
@@ -63,5 +62,7 @@ def create_app(config_name):
     app.register_blueprint(index_blue)
     from info.modules.passport import passport_blue
     app.register_blueprint(passport_blue)
+    from info.modules.news import news_blue
+    app.register_blueprint(news_blue)
 
     return app

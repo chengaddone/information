@@ -1,25 +1,20 @@
 from info import constants
-from info.models import User, News, Category
+from info.models import News, Category
+from info.utils.common import user_login_data
 from info.utils.response_code import RET
 from . import index_blue
-from flask import render_template, current_app, session, request, jsonify
+from flask import render_template, current_app, request, jsonify, g
 
 
 @index_blue.route("/")
+@user_login_data
 def index():
     """
     显示网站首页
     1.如果用户已经登录，将登录信息传到模板中
-    :return:
+    :return: template
     """
-    user_id = session.get("user_id", None)
-    user = None
-    if user_id:
-        try:
-            user = User.query.get(user_id)
-        except Exception as e:
-            current_app.logger.error(e)
-
+    user = g.user
     # 右侧新闻排行
     news_list = []
     try:
@@ -28,7 +23,7 @@ def index():
         current_app.logger.error(e)
     # 新闻分类的查询
     categories = Category.query.all()
-    category_list =[]
+    category_list = []
     for category in categories:
         category_list.append(category.to_dict())
     # 将模型类转换为dict，准备传给前端

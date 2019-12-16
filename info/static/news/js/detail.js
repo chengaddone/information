@@ -9,25 +9,68 @@ $(function(){
     // 打开登录框
     $('.comment_form_logout').click(function () {
         $('.login_form_con').show();
-    })
+    });
 
     // 收藏
     $(".collection").click(function () {
-
-       
-    })
+        var params = {
+            "news_id": $(this).attr("data-newid"),
+            "action": "collect"
+        };
+        $.ajax({
+            url: "/news/news_collect",
+            type: "post",
+            contentType: "application/json",
+            headers:{'X-CSRFToken':getCookie('csrf_token')},
+            data: JSON.stringify(params),
+            success: function (resp) {
+                if (resp.errno == 0){
+                    // 收藏成功，隐藏收藏按钮，显示取消收藏按钮
+                    $(".collection").hide();
+                    $(".collected").show();
+                } else if(resp.errno == "4101"){
+                    // 未登录点击收藏，应该弹出登录框
+                    $(".login_form_con").show();
+                }else{
+                    alert(resp.errmsg);
+                }
+            }
+        });
+    });
 
     // 取消收藏
     $(".collected").click(function () {
-
+        var params = {
+            "news_id": $(this).attr("data-newid"),
+            "action": "cancel_collect"
+        };
+        $.ajax({
+            url: "/news/news_collect",
+            type: "post",
+            contentType: "application/json",
+            headers:{'X-CSRFToken':getCookie('csrf_token')},
+            data: JSON.stringify(params),
+            success: function (resp) {
+                if (resp.errno == 0){
+                    // 收藏成功，隐藏收藏按钮，显示取消收藏按钮
+                    $(".collection").show();
+                    $(".collected").hide();
+                } else if(resp.errno == "4101"){
+                    // 未登录点击收藏，应该弹出登录框
+                    $(".login_form_con").show();
+                }else{
+                    alert(resp.errmsg);
+                }
+            }
+        });
      
-    })
+    });
 
         // 评论提交
     $(".comment_form").submit(function (e) {
         e.preventDefault();
 
-    })
+    });
 
     $('.comment_list_con').delegate('a,input','click',function(){
 
@@ -59,7 +102,7 @@ $(function(){
         {
             alert('回复评论')
         }
-    })
+    });
 
         // 关注当前新闻作者
     $(".focus").click(function () {
