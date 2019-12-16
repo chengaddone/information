@@ -45,18 +45,10 @@ def create_app(config_name):
                               decode_responses=True)
     # 开启当前项目的CSRF保护
     CSRFProtect(app)
-    @app.after_request
-    def after_request(response):
-        """每次前端请求之后响应之前生成随机的CSRF值,并放在响应的cookie中，下次请求会将之带回"""
-        csrf_token = generate_csrf()
-        response.set_cookie("csrf_token", csrf_token)
-        return response
-    # 添加模板过滤器，方法是do_index_class，名称是indexClass
     from info.utils.common import do_index_class
     app.add_template_filter(do_index_class, "indexClass")
     # 设置session
     Session(app)
-
     # 注册蓝图
     from info.modules.index import index_blue
     app.register_blueprint(index_blue)
@@ -65,4 +57,15 @@ def create_app(config_name):
     from info.modules.news import news_blue
     app.register_blueprint(news_blue)
 
+    # 添加模板过滤器，方法是do_index_class，名称是indexClass
+    @app.after_request
+    def after_request(response):
+        """每次前端请求之后响应之前生成随机的CSRF值,并放在响应的cookie中，下次请求会将之带回"""
+        csrf_token = generate_csrf()
+        response.set_cookie("csrf_token", csrf_token)
+        return response
+
     return app
+
+
+
