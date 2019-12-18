@@ -105,7 +105,7 @@ $(function(){
                     comment_html += '</div>';
                     comment_html += '<div class="comment_time fl">' + comment.create_time + '</div>';
 
-                    comment_html += '<a href="javascript:;" class="comment_up fr" data-commentid="' + comment.id + '" data-newsid="' + comment.news_id + '">赞</a>';
+                    comment_html += '<a href="javascript:;" class="comment_up fr" data-likecount="0" data-commentid="' + comment.id + '" data-newsid="' + comment.news_id + '">赞</a>';
                     comment_html += '<a href="javascript:;" class="comment_reply fr">回复</a>';
                     comment_html += '<form class="reply_form fl" data-commentid="' + comment.id + '" data-newsid="' + news_id + '">';
                     comment_html += '<textarea class="reply_input"></textarea>';
@@ -146,13 +146,54 @@ $(function(){
         if(sHandler.indexOf('comment_up')>=0)
         {
             var $this = $(this);
+            var action = "add";
             if(sHandler.indexOf('has_comment_up')>=0)
             {
                 // 如果当前该评论已经是点赞状态，再次点击会进行到此代码块内，代表要取消点赞
-                $this.removeClass('has_comment_up')
-            }else {
-                $this.addClass('has_comment_up')
+                action = "remove";
             }
+
+            var comment_id = $(this).attr("data-commentid");
+            var params = {
+                "comment_id": comment_id,
+                "action": action,
+            };
+
+            $.ajax({
+                url: "/news/comment_like",
+                type: "post",
+                contentType: "application/json",
+                headers: {
+                    "X-CSRFToken": getCookie("csrf_token")
+                },
+                data: JSON.stringify(params),
+                success: function (resp) {
+                    if (resp.errno == "0") {
+                        // 更新点赞按钮图标
+                        var like_count = $this.attr('data-likecount');
+                        if (action == "add") {
+                            // 代表是点赞，点赞数加1
+                            like_count = parseInt(like_count) + 1;
+                            $this.addClass('has_comment_up')
+                        }else {
+                            // 代表是取消点赞，点赞数减一
+                            like_count = parseInt(like_count) - 1;
+                            $this.removeClass('has_comment_up')
+                        }
+                        // 更新点赞数据
+                        $this.attr('data-likecount', like_count);
+                        if(like_count == 0){
+                            $this.html('赞');
+                        }else{
+                            $this.html(like_count);
+                        }
+                    }else if (resp.errno == "4101"){
+                        $('.login_form_con').show();
+                    }else {
+                        alert(resp.errmsg)
+                    }
+                }
+            })
         }
 
         // TODO: 回复评论的操作
