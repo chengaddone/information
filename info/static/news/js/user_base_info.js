@@ -10,14 +10,14 @@ $(function () {
 
         var signature = $("#signature").val();
         var nick_name = $("#nick_name").val();
-        var gender = $(".gender").val();
+        var gender = $(".gender:checked").val();
 
         if (!nick_name) {
-            alert('请输入昵称')
-            return
+            alert('请输入昵称');
+            return;
         }
         if (!gender) {
-            alert('请选择性别')
+            alert('请选择性别');
         }
 
         var params = {
@@ -37,14 +37,13 @@ $(function () {
             success: function (resp) {
                 if (resp.errno == "0") {
                     // 更新父窗口内容
-                    $('.user_center_name', parent.document).html(params['nick_name'])
-                    $('#nick_name', parent.document).html(params['nick_name'])
-                    $('.input_sub').blur()
+                    $('.user_center_name', parent.document).html(params['nick_name']);
+                    $('#nick_name', parent.document).html(params['nick_name']);
+                    $('.input_sub').blur();
                 }else {
                     alert(resp.errmsg);
                 }
             }
         });
-
     });
 });

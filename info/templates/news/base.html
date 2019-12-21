@@ -29,7 +29,7 @@
                 <!-- 用户登录后显示下面，隐藏上面 -->
                 <div class="user_login fr">
                     <a href="{{ url_for("profile.user_info") }}">
-                        <img src="{% if data.user.avatar_url %}{{ data.user.avatar_url }}{% else %}../../static/news/images/person01.png{% endif %}" class="lgin_pic">
+                        <img src="{% if data.user.avatar_url %}{{ data.user.avatar_url }}{% else %}../../static/news/images/person01.png{% endif %}" class="lgin_pic" id="user_photo">
                     </a>
                     <a href="#" id="nick_name">{{ data.user.nick_name }}</a>
                     <a href="javascript:;" onclick="logout()">退出</a>
