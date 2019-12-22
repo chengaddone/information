@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
-from flask import Flask
+from flask import Flask, render_template, g
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
@@ -49,6 +49,7 @@ def create_app(config_name):
     app.add_template_filter(do_index_class, "indexClass")
     # 设置session
     Session(app)
+
     # 注册蓝图
     from info.modules.index import index_blue
     app.register_blueprint(index_blue)
@@ -58,6 +59,17 @@ def create_app(config_name):
     app.register_blueprint(news_blue)
     from info.modules.profile import profile_blue
     app.register_blueprint(profile_blue)
+
+    from info.utils.common import user_login_data
+
+    @app.errorhandler(404)
+    @user_login_data
+    def page_notfound(e):
+        user = g.user
+        data = {
+            "user": user.to_dict() if user else None
+        }
+        return render_template("news/404.html", data=data)
 
     # 添加模板过滤器，方法是do_index_class，名称是indexClass
     @app.after_request
