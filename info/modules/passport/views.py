@@ -196,4 +196,5 @@ def logout():
     session.pop("user_id", None)
     session.pop("mobile", None)
     session.pop("nick_name", None)
+    session.pop("is_admin", None)
     return jsonify(errno=RET.OK, errmsg="登录成功")
